@@ -78,6 +78,13 @@
               ></el-input>
             </template>
             <template v-else>
+              <div class="line-numbers">
+                <div 
+                  v-for="n in lineCount" 
+                  :key="n" 
+                  class="line-number"
+                >{{ n }}</div>
+              </div>
               <json-viewer
                 :value="parsedJson"
                 ref="jsonViewer"
@@ -137,6 +144,12 @@ export default {
       },
       isEditing: false,
       editingContent: ''
+    }
+  },
+  computed: {
+    lineCount() {
+      if (!this.outputJson) return 0;
+      return this.outputJson.split('\n').length;
     }
   },
   methods: {
@@ -238,7 +251,7 @@ export default {
             .replace(/\\n/g, '\n')   // 理 \n
             .replace(/\\r/g, '\r')   // 处理 \r
             .replace(/\\t/g, '\t')   // 处理 \t
-            .replace(/\\b/g, '\b')   // 处理 \b
+            .replace(/\\b/g, '\b')   // 理 \b
             .replace(/\\f/g, '\f')   // 处理 \f
         } else {
           // 普通转义处理
@@ -438,65 +451,51 @@ export default {
 }
 
 .output-content {
+  position: relative;
+  display: flex;
   flex: 1;
   min-height: 450px;
   overflow: auto;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
-  padding: 8px;
   background-color: #fff;
   font-family: Consolas, Monaco, monospace;
   transition: all 0.3s ease;
+  padding: 8px;
 }
 
 .output-content:hover {
   border-color: #409EFF;
 }
 
-.output-content pre {
-  margin: 0;
+.line-numbers {
+  position: sticky;
+  left: 0;
+  top: 0;
+  height: fit-content;
+  min-height: 100%;
+  width: 3em;
+  background: #f8f9fa;
+  border-right: 1px solid #eee;
+  user-select: none;
+  padding: 8px 0;
+  z-index: 1;
+}
+
+.line-number {
+  color: #999;
+  text-align: right;
+  padding: 0 0.5em;
+  font-size: 14px;
+  height: 21px;
+  line-height: 21px;
   font-family: Consolas, Monaco, monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #444;
 }
 
-.output-content.has-error {
-  color: #f56c6c;
-  background-color: #fef0f0;
-  border-color: #f56c6c;
-}
-
-.error-message {
-  color: #f56c6c;
-  white-space: pre-wrap;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* 自定义滚动条样式 */
-.output-content::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.output-content::-webkit-scrollbar-track {
-  background: #f5f5f5;
-  border-radius: 4px;
-}
-
-.output-content::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.output-content::-webkit-scrollbar-thumb:hover {
-  background: #909399;
-}
-
-/* 自定义 JSON Viewer 样式 */
 :deep(.jv-container) {
+  padding: 0 8px 0 0 !important;
+  margin-left: 3em !important;
+  width: calc(100% - 3em);
   background: none !important;
   border: none !important;
   font-size: 14px !important;
@@ -504,28 +503,17 @@ export default {
 
 :deep(.jv-container.jv-light) {
   color: #444;
-  line-height: 1.6;
+  line-height: 21px !important;
 }
 
-:deep(.jv-key) {
-  color: #881391 !important;
-  font-weight: 500 !important;
+:deep(.jv-node) {
+  margin-left: 0 !important;
+  line-height: 21px !important;
 }
 
-:deep(.jv-item.jv-string) {
-  color: #c41a16 !important;
-}
-
-:deep(.jv-item.jv-number) {
-  color: #1c00cf !important;
-}
-
-:deep(.jv-item.jv-boolean) {
-  color: #0000ff !important;
-}
-
-:deep(.jv-item.jv-null) {
-  color: #808080 !important;
+:deep(.jv-container .line-number),
+:deep(.jv-container .line-number:hover) {
+  display: none;
 }
 
 @media screen and (max-width: 768px) {
